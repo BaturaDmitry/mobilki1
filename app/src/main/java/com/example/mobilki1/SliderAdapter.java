@@ -25,7 +25,7 @@ import androidx.viewpager.widget.ViewPager;
 
 public class SliderAdapter extends PagerAdapter {
 
-    private Context context;
+    private final Context context;
     private LayoutInflater layoutInflater;
     private final Integer[] images = { R.drawable.feed_button,
             R.drawable.achievements,

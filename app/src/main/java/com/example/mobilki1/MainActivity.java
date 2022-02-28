@@ -1,80 +1,61 @@
 package com.example.mobilki1;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
-
 import android.annotation.SuppressLint;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.PersistableBundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-
 import pl.droidsonroids.gif.GifDrawable;
 import pl.droidsonroids.gif.GifImageView;
 
 public class MainActivity extends AppCompatActivity {
     Animation animation;
     private TextView satiety_textView;
-    private int clicks=0;
-    private GifImageView loadGif;
-    String personName;
-    Timer timer=new Timer();
+    private int clicks = 0;
+    private String personName;
     public static ArrayList<Achievement> achievements = new ArrayList<>();
-    private Handler handler = new Handler();
     final String FILENAME = "achievements";
-    private String name;
+    private Animation animation_cat;
+    private ImageView imageView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        satiety_textView=findViewById(R.id.satiety_textView);
-        animation= AnimationUtils.loadAnimation(this,R.anim.center_cat);
+        satiety_textView = findViewById(R.id.satiety_textView);
+        animation = AnimationUtils.loadAnimation(this, R.anim.center_cat);
+        imageView=findViewById(R.id.imageCat);
         Toolbar t = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(t);
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -86,14 +67,16 @@ public class MainActivity extends AppCompatActivity {
             setTitle(personName);
         }
         generateAchievements();
+        animation_cat = AnimationUtils.loadAnimation(this, R.anim.center_cat);
     }
 
     public void feed_button_click(View view) {
         clicks++;
         satiety_textView.setText(String.valueOf(clicks));
         if (clicks % 15 == 0) {
-            for(int i=0;i<achievements.size();i++){
-                if(clicks==achievements.get(i).getScore_to_achieve()) {
+            imageView.startAnimation(animation_cat);
+            for (int i = 0; i < achievements.size(); i++) {
+                if (clicks == achievements.get(i).getScore_to_achieve()) {
                     GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(this);
                     if (acct != null) {
                         personName = acct.getDisplayName();
@@ -102,33 +85,10 @@ public class MainActivity extends AppCompatActivity {
                     writeAchievements(i);
                 }
             }
-            Timer timer=new Timer();
-            loadGif = findViewById(R.id.hearts);
-            loadGif.setVisibility(View.VISIBLE);
-            ((GifDrawable) loadGif.getDrawable()).setLoopCount(1);
-            timer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            loadGif.getDrawable();
-                        }
-                    });
-                }
-            }, 0, 20);
         }
     }
 
-        private void checkAnimationEnding(){
-            if ( ((GifDrawable)loadGif.getDrawable()).isAnimationCompleted() ){
-                if (timer != null) {
-                    timer.cancel();
-                    timer = null;
-                }
-                loadGif.setVisibility(View.INVISIBLE);
-            }
-        }
+
 
 
     @Override
@@ -171,24 +131,16 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent3 =new Intent(this,SignOutActivity.class);
                 startActivity(intent3);
                 return true;
-            case R.id.item_widget:
+            case R.id.item_slide:
                 Intent intent4 =new Intent(this,RulesActivity.class);
                 startActivity(intent4);
-      /*          GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(this);
+                return true;
+            case R.id.item_widget:
+                GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(this);
                 if (acct != null) {
-                    name = acct.getDisplayName();
+                    personName = acct.getDisplayName();
                 }
-                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putString("USER", name);
-                editor.putLong("LAST_SCORE", clicks);
-                editor.apply();
-                Intent intent4 = new Intent(this, AppWidgetProvider.class);
-                intent4.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
-                int[] ids = AppWidgetManager.getInstance(getApplication())
-                        .getAppWidgetIds(new ComponentName(getApplication(), AppWidgetProvider.class));
-                intent4.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
-                sendBroadcast(intent4);*/
+                putVidgetInfo();
                 return true;
             default:return super.onOptionsItemSelected(item);
         }
@@ -209,6 +161,19 @@ public class MainActivity extends AppCompatActivity {
                 text, Toast.LENGTH_LONG);
         toast.setGravity(Gravity.CENTER, 0, 0);
         toast.show();
+    }
+    void putVidgetInfo(){
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("USER", personName);
+        editor.putLong("LAST_SCORE", clicks);
+        editor.apply();
+        Intent intent5 = new Intent(this, AppWidgetProvider.class);
+        intent5.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+        int[] ids = AppWidgetManager.getInstance(getApplication())
+                .getAppWidgetIds(new ComponentName(getApplication(), AppWidgetProvider.class));
+        intent5.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
+        sendBroadcast(intent5);
     }
 
     void writeResults(){

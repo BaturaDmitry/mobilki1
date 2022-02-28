@@ -17,7 +17,7 @@ public class StartActivity extends AppCompatActivity {
     private GifImageView loadGif;
 
     private Timer timer = new Timer();
-    private Handler handler = new Handler();
+    private final Handler handler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

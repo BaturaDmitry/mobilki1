@@ -21,10 +21,14 @@
 
         android:title="Таблица с достижениями"
         app:showAsAction="never" />
-   <item android:id="@+id/item_widget"
+   <item android:id="@+id/item_slide"
 
-       android:title="Виджет"
+       android:title="Окно с переходами"
        app:showAsAction="never" />
+    <item android:id="@+id/item_widget"
+
+        android:title="Виджет"
+        app:showAsAction="never" />
     <item android:id="@+id/item_exit"
 
         android:title="Выход"

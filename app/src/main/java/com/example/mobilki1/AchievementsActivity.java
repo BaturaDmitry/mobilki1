@@ -16,6 +16,8 @@ import android.widget.TextView;
 
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -25,7 +27,7 @@ import java.util.Objects;
 public class AchievementsActivity extends AppCompatActivity {
     final String FILENAME = "achievements";
     private TableLayout tableLayout;
-
+    private String name;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,16 +55,23 @@ public class AchievementsActivity extends AppCompatActivity {
     }
 
     void readFile() {
+        GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(this);
+        if (acct != null) {
+            name = acct.getDisplayName();
+        }
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(
                     openFileInput(FILENAME)));
             String str = "";
             int i = 1;
             while ((str = br.readLine()) != null) {
+                String[] strings = str.split("\\|");
+                if(!strings[0].equals(name)){
+                    continue;
+                }
                 TableRow tableRow = new TableRow(this);
                 tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT,
                         TableRow.LayoutParams.WRAP_CONTENT));
-                String[] strings = str.split("\\|");
                 ImageView imageView = new ImageView(this);
                 imageView.setImageResource(MainActivity.achievements.get(Integer.parseInt(strings[strings.length-1])/15-1).image);
                 tableRow.addView(imageView, 0);
